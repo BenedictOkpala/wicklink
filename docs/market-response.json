@@ -1,0 +1,68 @@
+{
+  "assets": [
+    {
+      "symbol": "AAPL",
+      "displayName": "Apple Inc.",
+      "tokenizedSymbol": "RAAPLUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 337.06,
+      "tokenizedTimestamp": "2026-09-18T07:20:15.855Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "unknown",
+      "rawDislocationPercent": null,
+      "dataStatus": "LIVE",
+      "issue": null
+    },
+    {
+      "symbol": "NVDA",
+      "displayName": "NVIDIA Corporation",
+      "tokenizedSymbol": "RNVDAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 221.52,
+      "tokenizedTimestamp": "2026-09-18T07:20:15.545Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "unknown",
+      "rawDislocationPercent": null,
+      "dataStatus": "LIVE",
+      "issue": null
+    },
+    {
+      "symbol": "TSLA",
+      "displayName": "Tesla, Inc.",
+      "tokenizedSymbol": "RTSLAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 369.49,
+      "tokenizedTimestamp": "2026-09-18T07:20:15.545Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "unknown",
+      "rawDislocationPercent": null,
+      "dataStatus": "LIVE",
+      "issue": null
+    }
+  ],
+  "fetchedAt": "2026-09-18T07:20:18.678Z",
+  "dataStatus": "LIVE",
+  "referenceAvailable": false,
+  "message": "Underlying US-stock reference prices are not supplied by the verified endpoints.",
+  "events": [
+    {
+      "timestamp": "2026-09-18T07:20:16.988Z",
+      "message": "Loading Reality instruments from Bitget."
+    },
+    {
+      "timestamp": "2026-09-18T07:20:17.961Z",
+      "message": "Confirmed 3 supported Reality instruments."
+    },
+    {
+      "timestamp": "2026-09-18T07:20:18.677Z",
+      "message": "Ticker fetch complete: 3/3 prices available."
+    },
+    {
+      "timestamp": "2026-09-18T07:20:18.678Z",
+      "message": "Market monitor ready."
+    }
+  ]
+}

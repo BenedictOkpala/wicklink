@@ -1,0 +1,122 @@
+{
+  "assets": [
+    {
+      "symbol": "AAPL",
+      "displayName": "Apple Inc.",
+      "tokenizedSymbol": "RAAPLUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 336.58,
+      "tokenizedTimestamp": "2026-09-18T08:07:47.100Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "UNKNOWN",
+      "rawDislocationPercent": null,
+      "referenceType": null,
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": null,
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "UNAVAILABLE",
+      "comparisonStatus": "UNAVAILABLE",
+      "tokenizedAgeMs": 3456,
+      "referenceAgeMs": null,
+      "timestampSkewMs": null,
+      "comparisonAsOf": "2026-09-18T08:07:50.556Z",
+      "dataStatus": "UNAVAILABLE",
+      "issue": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    },
+    {
+      "symbol": "NVDA",
+      "displayName": "NVIDIA Corporation",
+      "tokenizedSymbol": "RNVDAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 221.59,
+      "tokenizedTimestamp": "2026-09-18T08:07:47.348Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "UNKNOWN",
+      "rawDislocationPercent": null,
+      "referenceType": null,
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": null,
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "UNAVAILABLE",
+      "comparisonStatus": "UNAVAILABLE",
+      "tokenizedAgeMs": 3208,
+      "referenceAgeMs": null,
+      "timestampSkewMs": null,
+      "comparisonAsOf": "2026-09-18T08:07:50.556Z",
+      "dataStatus": "UNAVAILABLE",
+      "issue": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    },
+    {
+      "symbol": "TSLA",
+      "displayName": "Tesla, Inc.",
+      "tokenizedSymbol": "RTSLAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 369,
+      "tokenizedTimestamp": "2026-09-18T08:07:48.594Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "UNKNOWN",
+      "rawDislocationPercent": null,
+      "referenceType": null,
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": null,
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "UNAVAILABLE",
+      "comparisonStatus": "UNAVAILABLE",
+      "tokenizedAgeMs": 1962,
+      "referenceAgeMs": null,
+      "timestampSkewMs": null,
+      "comparisonAsOf": "2026-09-18T08:07:50.556Z",
+      "dataStatus": "UNAVAILABLE",
+      "issue": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    }
+  ],
+  "fetchedAt": "2026-09-18T08:07:50.556Z",
+  "dataStatus": "UNAVAILABLE",
+  "referenceAvailable": false,
+  "message": "No verified reference strategy for US session UNKNOWN. Comparison withheld.",
+  "events": [
+    {
+      "timestamp": "2026-09-18T08:07:48.945Z",
+      "message": "Loading Reality instruments from Bitget."
+    },
+    {
+      "timestamp": "2026-09-18T08:07:49.811Z",
+      "message": "Confirmed 3 supported Reality instruments."
+    },
+    {
+      "timestamp": "2026-09-18T08:07:50.556Z",
+      "message": "Ticker fetch complete: 3/3 prices available."
+    },
+    {
+      "timestamp": "2026-09-18T08:07:50.556Z",
+      "message": "Market monitor ready."
+    },
+    {
+      "timestamp": "2026-09-18T08:07:50.556Z",
+      "message": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    },
+    {
+      "timestamp": "2026-09-18T08:07:50.556Z",
+      "message": "US session: UNKNOWN. Alpaca IEX: DELAYED; overnight: DELAYED (HTTP 200)."
+    }
+  ],
+  "sessionIssue": "Bitget provides session schedules, but no verified current US session field. Comparison withheld."
+}

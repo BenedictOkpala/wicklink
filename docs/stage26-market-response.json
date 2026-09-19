@@ -1,0 +1,138 @@
+{
+  "assets": [
+    {
+      "symbol": "AAPL",
+      "displayName": "Apple Inc.",
+      "tokenizedSymbol": "RAAPLUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 337.65,
+      "tokenizedTimestamp": "2026-09-18T13:28:17.527Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "UNKNOWN",
+      "rawDislocationPercent": null,
+      "sessionSource": "Bitget Reality schedule + calendar",
+      "sessionEvaluatedAt": "2026-09-18T13:28:19.107Z",
+      "referenceType": null,
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": null,
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "UNAVAILABLE",
+      "comparisonStatus": "UNAVAILABLE",
+      "tokenizedAgeMs": 1580,
+      "referenceAgeMs": null,
+      "timestampSkewMs": null,
+      "comparisonAsOf": "2026-09-18T13:28:19.107Z",
+      "dataStatus": "UNAVAILABLE",
+      "issue": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    },
+    {
+      "symbol": "NVDA",
+      "displayName": "NVIDIA Corporation",
+      "tokenizedSymbol": "RNVDAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 219.79,
+      "tokenizedTimestamp": "2026-09-18T13:28:17.336Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "UNKNOWN",
+      "rawDislocationPercent": null,
+      "sessionSource": "Bitget Reality schedule + calendar",
+      "sessionEvaluatedAt": "2026-09-18T13:28:19.107Z",
+      "referenceType": null,
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": null,
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "UNAVAILABLE",
+      "comparisonStatus": "UNAVAILABLE",
+      "tokenizedAgeMs": 1771,
+      "referenceAgeMs": null,
+      "timestampSkewMs": null,
+      "comparisonAsOf": "2026-09-18T13:28:19.107Z",
+      "dataStatus": "UNAVAILABLE",
+      "issue": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    },
+    {
+      "symbol": "TSLA",
+      "displayName": "Tesla, Inc.",
+      "tokenizedSymbol": "RTSLAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 368.62,
+      "tokenizedTimestamp": "2026-09-18T13:28:17.525Z",
+      "referencePrice": null,
+      "referenceTimestamp": null,
+      "marketSession": "UNKNOWN",
+      "rawDislocationPercent": null,
+      "sessionSource": "Bitget Reality schedule + calendar",
+      "sessionEvaluatedAt": "2026-09-18T13:28:19.107Z",
+      "referenceType": null,
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": null,
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "UNAVAILABLE",
+      "comparisonStatus": "UNAVAILABLE",
+      "tokenizedAgeMs": 1582,
+      "referenceAgeMs": null,
+      "timestampSkewMs": null,
+      "comparisonAsOf": "2026-09-18T13:28:19.107Z",
+      "dataStatus": "UNAVAILABLE",
+      "issue": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    }
+  ],
+  "fetchedAt": "2026-09-18T13:28:19.107Z",
+  "dataStatus": "UNAVAILABLE",
+  "referenceAvailable": false,
+  "message": "No verified reference strategy for US session UNKNOWN. Comparison withheld.",
+  "events": [
+    {
+      "timestamp": "2026-09-18T13:28:17.603Z",
+      "message": "Loading Reality instruments from Bitget."
+    },
+    {
+      "timestamp": "2026-09-18T13:28:18.677Z",
+      "message": "Confirmed 3 supported Reality instruments."
+    },
+    {
+      "timestamp": "2026-09-18T13:28:19.106Z",
+      "message": "Ticker fetch complete: 3/3 prices available."
+    },
+    {
+      "timestamp": "2026-09-18T13:28:19.106Z",
+      "message": "Market monitor ready."
+    },
+    {
+      "timestamp": "2026-09-18T13:28:19.107Z",
+      "message": "No verified reference strategy for US session UNKNOWN. Comparison withheld."
+    },
+    {
+      "timestamp": "2026-09-18T13:28:19.107Z",
+      "message": "US session: UNKNOWN. Selected reference feed: none. Bitget timezone metadata conflicts with America/New_York: reported standard, timezone rules resolve dst."
+    }
+  ],
+  "sessionIssue": "Bitget timezone metadata conflicts with America/New_York: reported standard, timezone rules resolve dst.",
+  "sessionDiagnostics": {
+    "session": "UNKNOWN",
+    "sessionSource": "Bitget Reality schedule + calendar",
+    "evaluatedAt": "2026-09-18T13:28:19.107Z",
+    "timeZone": "America/New_York",
+    "localTime": "2026-09-18T09:28:19",
+    "reportedDaylightType": "standard",
+    "resolvedDaylightType": "dst",
+    "issue": "Bitget timezone metadata conflicts with America/New_York: reported standard, timezone rules resolve dst."
+  }
+}

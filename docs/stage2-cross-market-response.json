@@ -1,0 +1,108 @@
+{
+  "assets": [
+    {
+      "symbol": "AAPL",
+      "displayName": "Apple Inc.",
+      "tokenizedSymbol": "RAAPLUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 337.26,
+      "tokenizedTimestamp": "2026-09-18T07:55:41.607Z",
+      "referencePrice": 337.09,
+      "referenceTimestamp": "2026-09-17T19:59:59.838724479Z",
+      "marketSession": "unknown",
+      "rawDislocationPercent": null,
+      "referenceSource": "Alpaca IEX",
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "DELAYED",
+      "comparisonStatus": "STALE",
+      "tokenizedAgeMs": 2308,
+      "referenceAgeMs": 42944077,
+      "timestampSkewMs": 42941769,
+      "comparisonAsOf": "2026-09-18T07:55:43.915Z",
+      "dataStatus": "DELAYED",
+      "issue": "Comparison withheld: a provider price is stale."
+    },
+    {
+      "symbol": "NVDA",
+      "displayName": "NVIDIA Corporation",
+      "tokenizedSymbol": "RNVDAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 221.79,
+      "tokenizedTimestamp": "2026-09-18T07:55:41.605Z",
+      "referencePrice": 219.4,
+      "referenceTimestamp": "2026-09-17T19:59:59.915323379Z",
+      "marketSession": "unknown",
+      "rawDislocationPercent": null,
+      "referenceSource": "Alpaca IEX",
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "DELAYED",
+      "comparisonStatus": "STALE",
+      "tokenizedAgeMs": 2310,
+      "referenceAgeMs": 42944000,
+      "timestampSkewMs": 42941690,
+      "comparisonAsOf": "2026-09-18T07:55:43.915Z",
+      "dataStatus": "DELAYED",
+      "issue": "Comparison withheld: a provider price is stale."
+    },
+    {
+      "symbol": "TSLA",
+      "displayName": "Tesla, Inc.",
+      "tokenizedSymbol": "RTSLAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 369.16,
+      "tokenizedTimestamp": "2026-09-18T07:55:42.225Z",
+      "referencePrice": 366.02,
+      "referenceTimestamp": "2026-09-17T19:59:59.231542737Z",
+      "marketSession": "unknown",
+      "rawDislocationPercent": null,
+      "referenceSource": "Alpaca IEX",
+      "referenceCurrency": "USD",
+      "dislocationDirection": null,
+      "absoluteDifference": null,
+      "priceDifference": null,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "DELAYED",
+      "comparisonStatus": "STALE",
+      "tokenizedAgeMs": 1690,
+      "referenceAgeMs": 42944684,
+      "timestampSkewMs": 42942994,
+      "comparisonAsOf": "2026-09-18T07:55:43.915Z",
+      "dataStatus": "DELAYED",
+      "issue": "Comparison withheld: a provider price is stale."
+    }
+  ],
+  "fetchedAt": "2026-09-18T07:55:43.915Z",
+  "dataStatus": "DELAYED",
+  "referenceAvailable": true,
+  "message": "Underlying reference uses Alpaca IEX market data and may differ from consolidated SIP pricing.",
+  "events": [
+    {
+      "timestamp": "2026-09-18T07:55:42.125Z",
+      "message": "Loading Reality instruments from Bitget."
+    },
+    {
+      "timestamp": "2026-09-18T07:55:43.082Z",
+      "message": "Confirmed 3 supported Reality instruments."
+    },
+    {
+      "timestamp": "2026-09-18T07:55:43.915Z",
+      "message": "Ticker fetch complete: 3/3 prices available."
+    },
+    {
+      "timestamp": "2026-09-18T07:55:43.915Z",
+      "message": "Market monitor ready."
+    },
+    {
+      "timestamp": "2026-09-18T07:55:43.915Z",
+      "message": "Alpaca IEX returned 3 reference prices; 0 comparisons available."
+    }
+  ]
+}

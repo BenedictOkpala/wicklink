@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { calculateDislocation } from '../lib/dislocation/calculate.ts';
+test('premium', () => assert.deepEqual(calculateDislocation(100, 105), {absoluteDifference:5,percentageDifference:5,direction:'premium'}));
+test('discount', () => assert.deepEqual(calculateDislocation(100, 95), {absoluteDifference:5,percentageDifference:-5,direction:'discount'}));
+test('equal prices', () => assert.deepEqual(calculateDislocation(100, 100), {absoluteDifference:0,percentageDifference:0,direction:'flat'}));
+test('invalid input', () => { for (const value of [NaN, Infinity, -Infinity, -1, null, undefined, '100']) { assert.throws(() => calculateDislocation(value as number, 100), RangeError); assert.throws(() => calculateDislocation(100, value as number), RangeError); } });
+test('zero reference price', () => assert.throws(() => calculateDislocation(0, 100), RangeError));
+test('zero tokenized price', () => assert.throws(() => calculateDislocation(100, 0), RangeError));
+test('floating point noise is flat', () => assert.equal(calculateDislocation(0.3, 0.1 + 0.2).direction, 'flat'));
+test('decimal difference rounds cleanly', () => assert.equal(calculateDislocation(0.1, 0.3).absoluteDifference, 0.2));
+test('overflow is rejected', () => assert.throws(() => calculateDislocation(Number.MIN_VALUE, Number.MAX_VALUE), RangeError));

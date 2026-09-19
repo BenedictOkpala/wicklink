@@ -1,0 +1,141 @@
+{
+  "assets": [
+    {
+      "symbol": "AAPL",
+      "displayName": "Apple Inc.",
+      "tokenizedSymbol": "RAAPLUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 336.68,
+      "tokenizedTimestamp": "2026-09-18T13:36:14.249Z",
+      "referencePrice": 336.71,
+      "referenceTimestamp": "2026-09-18T13:36:16.395722227Z",
+      "marketSession": "REGULAR",
+      "rawDislocationPercent": -0.00890974429033,
+      "sessionSource": "Bitget Reality schedule + calendar",
+      "sessionEvaluatedAt": "2026-09-18T13:36:16.816Z",
+      "referenceType": "TRADE",
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": "Alpaca IEX",
+      "referenceCurrency": "USD",
+      "dislocationDirection": "discount",
+      "absoluteDifference": 0.03,
+      "priceDifference": -0.03,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "LIVE",
+      "comparisonStatus": "AVAILABLE",
+      "tokenizedAgeMs": 2567,
+      "referenceAgeMs": 421,
+      "timestampSkewMs": 2146,
+      "comparisonAsOf": "2026-09-18T13:36:16.816Z",
+      "dataStatus": "LIVE",
+      "issue": null
+    },
+    {
+      "symbol": "NVDA",
+      "displayName": "NVIDIA Corporation",
+      "tokenizedSymbol": "RNVDAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 219.06,
+      "tokenizedTimestamp": "2026-09-18T13:36:13.296Z",
+      "referencePrice": 219.22,
+      "referenceTimestamp": "2026-09-18T13:36:12.735878052Z",
+      "marketSession": "REGULAR",
+      "rawDislocationPercent": -0.0729860414196,
+      "sessionSource": "Bitget Reality schedule + calendar",
+      "sessionEvaluatedAt": "2026-09-18T13:36:16.816Z",
+      "referenceType": "TRADE",
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": "Alpaca IEX",
+      "referenceCurrency": "USD",
+      "dislocationDirection": "discount",
+      "absoluteDifference": 0.16,
+      "priceDifference": -0.16,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "LIVE",
+      "comparisonStatus": "AVAILABLE",
+      "tokenizedAgeMs": 3520,
+      "referenceAgeMs": 4081,
+      "timestampSkewMs": 561,
+      "comparisonAsOf": "2026-09-18T13:36:16.816Z",
+      "dataStatus": "LIVE",
+      "issue": null
+    },
+    {
+      "symbol": "TSLA",
+      "displayName": "Tesla, Inc.",
+      "tokenizedSymbol": "RTSLAUSDT",
+      "quoteCurrency": "USDT",
+      "tokenizedPrice": 366.25,
+      "tokenizedTimestamp": "2026-09-18T13:36:14.468Z",
+      "referencePrice": 366.135,
+      "referenceTimestamp": "2026-09-18T13:36:16.151753699Z",
+      "marketSession": "REGULAR",
+      "rawDislocationPercent": 0.0314091796742,
+      "sessionSource": "Bitget Reality schedule + calendar",
+      "sessionEvaluatedAt": "2026-09-18T13:36:16.816Z",
+      "referenceType": "TRADE",
+      "referenceBid": null,
+      "referenceAsk": null,
+      "referenceSource": "Alpaca IEX",
+      "referenceCurrency": "USD",
+      "dislocationDirection": "premium",
+      "absoluteDifference": 0.115,
+      "priceDifference": 0.115,
+      "bitgetStatus": "LIVE",
+      "referenceStatus": "LIVE",
+      "comparisonStatus": "AVAILABLE",
+      "tokenizedAgeMs": 2348,
+      "referenceAgeMs": 665,
+      "timestampSkewMs": 1683,
+      "comparisonAsOf": "2026-09-18T13:36:16.816Z",
+      "dataStatus": "LIVE",
+      "issue": null
+    }
+  ],
+  "fetchedAt": "2026-09-18T13:36:16.816Z",
+  "dataStatus": "LIVE",
+  "referenceAvailable": true,
+  "message": "Alpaca references are feed-specific and are not consolidated SIP pricing.",
+  "events": [
+    {
+      "timestamp": "2026-09-18T13:36:14.742Z",
+      "message": "Loading Reality instruments from Bitget."
+    },
+    {
+      "timestamp": "2026-09-18T13:36:15.717Z",
+      "message": "Confirmed 3 supported Reality instruments."
+    },
+    {
+      "timestamp": "2026-09-18T13:36:16.123Z",
+      "message": "Ticker fetch complete: 3/3 prices available."
+    },
+    {
+      "timestamp": "2026-09-18T13:36:16.123Z",
+      "message": "Market monitor ready."
+    },
+    {
+      "timestamp": "2026-09-18T13:36:16.816Z",
+      "message": "Alpaca iex returned 3 reference prices; 3 comparisons available."
+    },
+    {
+      "timestamp": "2026-09-18T13:36:16.816Z",
+      "message": "US session: REGULAR. Selected reference feed: iex. Resolved from Bitget schedule and calendar. Bitget daylightType reports standard while America/New_York resolves to dst; IANA timezone rules are authoritative. Bitget schedule labels EST are interpreted using America/New_York, not fixed UTC offsets."
+    }
+  ],
+  "sessionDiagnostics": {
+    "session": "REGULAR",
+    "sessionSource": "Bitget Reality schedule + calendar",
+    "evaluatedAt": "2026-09-18T13:36:16.816Z",
+    "timeZone": "America/New_York",
+    "localTime": "2026-09-18T09:36:16",
+    "reportedDaylightType": "standard",
+    "resolvedDaylightType": "dst",
+    "timezoneDiagnostic": "Bitget daylightType reports standard while America/New_York resolves to dst; IANA timezone rules are authoritative. Bitget schedule labels EST are interpreted using America/New_York, not fixed UTC offsets.",
+    "calendarDate": "2026-09-18",
+    "sessionStartDate": "2026-09-18",
+    "sessionEndDate": "2026-09-18",
+    "issue": null
+  }
+}
