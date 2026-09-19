@@ -1,5 +1,5 @@
 {
-  "lib/alpaca\\client.ts": "58c3e922e3d1d07d7e5daf7970070d4c190cc3f2da66e411fb3efaad10954f03",
+  "lib/alpaca\\client.ts": "fcd7754ae1c2861ae246439cbf164ec5d8ef7a20929ca8a73e2b281f5f2b32e0",
   "lib/alpaca\\normalize.ts": "9aa2e5b506db37a642e79af1560d664b2f14899866420080bcc59a58a26bd0d3",
   "lib/alpaca\\quotes.ts": "7fe62b18649d00d00087f4a9eae238cf0c6f41f46dcb3d5d35013a750d4fc05f",
   "lib/alpaca\\request.ts": "ac52f30019377ac74318e3b1969c264118ab9b5cc6e190dce1fe4c08d16bd77b",

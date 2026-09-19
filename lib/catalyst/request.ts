@@ -26,7 +26,7 @@ export async function requestCatalystNews(
       breakingCount: 0,
       recentCount: 0,
       materialCount: 0,
-      issue: 'Catalyst news credentials are not configured in .env.local (APCA-API-KEY-ID & APCA-API-SECRET-KEY).',
+      issue: 'Alpaca API credentials are not configured.',
     };
   }
 

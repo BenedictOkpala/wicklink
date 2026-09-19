@@ -174,7 +174,7 @@ test('requestCatalystNews returns UNCONFIGURED when credentials are missing', as
   const result = await requestCatalystNews('AAPL', { key: '', secret: '' });
   assert.equal(result.status, 'UNCONFIGURED');
   assert.equal(result.articles.length, 0);
-  assert.ok(result.issue?.includes('APCA-API-KEY-ID'));
+  assert.ok(result.issue?.includes('Alpaca API credentials are not configured'));
 });
 
 test('requestCatalystNews sends correct query parameters and auth headers', async () => {

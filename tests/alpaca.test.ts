@@ -71,3 +71,20 @@ test('network, timeout and schema failures are safely isolated', async () => {
     assert.equal(result.status, 'ERROR'); assert.ok(!JSON.stringify(result).includes(credentials.secret));
   }
 });
+test('environment variable resolution prefers APCA_API_KEY_ID with backward compatibility for APCA-API-KEY-ID', () => {
+  const resolveCredentials = (env: Record<string, string | undefined>) => ({
+    key: env.APCA_API_KEY_ID || env['APCA-API-KEY-ID'],
+    secret: env.APCA_API_SECRET_KEY || env['APCA-API-SECRET-KEY'],
+  });
+  // Primary underscore keys take precedence (Vercel-compatible)
+  assert.deepEqual(
+    resolveCredentials({ APCA_API_KEY_ID: 'primary-key', 'APCA-API-KEY-ID': 'legacy-key', APCA_API_SECRET_KEY: 'primary-secret', 'APCA-API-SECRET-KEY': 'legacy-secret' }),
+    { key: 'primary-key', secret: 'primary-secret' }
+  );
+  // Fallback to legacy hyphenated keys when primary is absent
+  assert.deepEqual(
+    resolveCredentials({ 'APCA-API-KEY-ID': 'legacy-key', 'APCA-API-SECRET-KEY': 'legacy-secret' }),
+    { key: 'legacy-key', secret: 'legacy-secret' }
+  );
+});
+

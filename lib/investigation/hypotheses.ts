@@ -228,8 +228,8 @@ export function evaluateHypotheses(evidence: InvestigationEvidence): Investigati
     let rationale = 'No qualifying catalyst evidence available to evaluate; status remains conservative.';
 
     if (!catalyst || catalyst.status === 'UNCONFIGURED') {
-      contradicting.push('Catalyst news feed credentials are not configured in server environment.');
-      missing.push('Configured APCA-API-KEY-ID & APCA-API-SECRET-KEY to query market news.');
+      contradicting.push('Alpaca API credentials are not configured in server environment.');
+      missing.push('Configured Alpaca API credentials to query market news.');
       rationale = 'Heuristic score 0.10: Catalyst news provider unconfigured in server environment.';
       status = 'UNRESOLVED';
       confidence = 0.10;

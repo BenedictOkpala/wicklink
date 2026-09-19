@@ -10,8 +10,8 @@ export async function getCatalystEvidence(
   windowHours = 48
 ): Promise<CatalystEvidence> {
   const credentials = {
-    key: process.env['APCA-API-KEY-ID'] || process.env.NEWS_API_KEY,
-    secret: process.env['APCA-API-SECRET-KEY'] || process.env.NEWS_API_SECRET,
+    key: process.env.APCA_API_KEY_ID || process.env['APCA-API-KEY-ID'] || process.env.NEWS_API_KEY,
+    secret: process.env.APCA_API_SECRET_KEY || process.env['APCA-API-SECRET-KEY'] || process.env.NEWS_API_SECRET,
   };
 
   const observationTime = observationTimestamp

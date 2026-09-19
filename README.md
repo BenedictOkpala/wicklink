@@ -209,8 +209,8 @@ Restart the server after changing credentials. Never paste credentials into chat
 
 | Variable | Purpose |
 | --- | --- |
-| `APCA-API-KEY-ID` | Alpaca key ID, sent only as the identically named HTTP header from server code. |
-| `APCA-API-SECRET-KEY` | Alpaca secret, sent only as the identically named HTTP header from server code. |
+| `APCA_API_KEY_ID` | Alpaca key ID, sent as `APCA-API-KEY-ID` HTTP header from server code (supports legacy `APCA-API-KEY-ID`). |
+| `APCA_API_SECRET_KEY` | Alpaca secret, sent as `APCA-API-SECRET-KEY` HTTP header from server code (supports legacy `APCA-API-SECRET-KEY`). |
 | `MARKET_STALE_AFTER_MS` | Stage 1 Bitget snapshot freshness setting; default 60000 ms, valid range 1000–300000. The cross-market policy independently caps acceptable ages at 60000 ms. |
 
 Alpaca variables are empty in `.env.example`. Missing credentials are a supported degraded state: Bitget still loads, `referencePrice` and `rawDislocationPercent` are null, and the issue identifies the unavailable underlying reference. `.env.local` and other environment files are ignored by Git. Secrets are never passed to client components; server-only entry points enforce the boundary. Upstream response bodies and exceptions are not returned to the client or logged, preventing accidental secret disclosure. Authentication is used solely for market data.
