@@ -9,6 +9,15 @@ export interface AiExecutionResult {
   issue: string | null;
 }
 
+export function normalizeAiEndpoint(rawUrl: string = 'https://api.openai.com/v1'): string {
+  const trimmed = rawUrl.trim().replace(/\/+$/, '');
+  if (!trimmed) return 'https://api.openai.com/v1/chat/completions';
+  if (trimmed.endsWith('/chat/completions')) {
+    return trimmed;
+  }
+  return `${trimmed}/chat/completions`;
+}
+
 export function parseAiOutput(raw: unknown): AiInvestigationOutput | null {
   if (!isRecord(raw)) return null;
 
@@ -29,9 +38,19 @@ export function parseAiOutput(raw: unknown): AiInvestigationOutput | null {
 
   const toStringArray = (arr: unknown): string[] => Array.isArray(arr) ? arr.filter((x): x is string => typeof x === 'string') : [];
 
+  const whyThisMatters = typeof a.whyThisMatters === 'string' && a.whyThisMatters.trim().length > 0
+    ? a.whyThisMatters.trim()
+    : a.primaryExplanation;
+
+  const closedMarketCallout = typeof a.closedMarketCallout === 'string' && a.closedMarketCallout.trim().length > 0
+    ? a.closedMarketCallout.trim()
+    : null;
+
   const assessment: InvestigationAssessment = {
     summary: a.summary,
     primaryExplanation: a.primaryExplanation,
+    whyThisMatters,
+    closedMarketCallout,
     dislocationVerdict: verdict,
     keyRisks: toStringArray(a.keyRisks),
     keyEvidencePoints: toStringArray(a.keyEvidencePoints),
@@ -48,7 +67,15 @@ export function parseAiOutput(raw: unknown): AiInvestigationOutput | null {
     'MARKET_EVENT',
     'INSUFFICIENT_EVIDENCE',
   ];
-  const validStatuses: HypothesisStatus[] = ['SUPPORTED', 'PLAUSIBLE', 'WEAK', 'UNRESOLVED'];
+  const validStatuses: HypothesisStatus[] = [
+    'SUPPORTED',
+    'PARTIALLY_SUPPORTED',
+    'PLAUSIBLE',
+    'WEAK',
+    'CONTRADICTED',
+    'INSUFFICIENT_DATA',
+    'UNRESOLVED',
+  ];
 
   const hypotheses: InvestigationHypothesis[] = [];
   for (const item of raw.hypotheses) {
@@ -80,26 +107,27 @@ export function parseAiOutput(raw: unknown): AiInvestigationOutput | null {
 export async function requestAiInvestigation(
   input: AiInvestigationInput,
   apiKey: string | undefined,
-  baseUrl: string = 'https://api.openai.com/v1',
+  endpointOrBaseUrl: string = 'https://api.openai.com/v1',
   model: string = 'gpt-4o-mini',
   fetcher: typeof fetch = fetch,
+  timeoutMs: number = 10000,
 ): Promise<AiExecutionResult> {
   const trimmedKey = apiKey?.trim();
   if (!trimmedKey) {
     return {
       status: 'AI_ANALYSIS_UNAVAILABLE',
       output: null,
-      issue: 'AI API credentials are not configured in .env.local (set AI_API_KEY or OPENAI_API_KEY). Deterministic evidence and signals are available.',
+      issue: 'AI API credentials are not configured in environment (set AI_API_KEY or OPENAI_API_KEY). Deterministic evidence, signals, and research heuristics are active.',
     };
   }
 
-  const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+  const endpointUrl = normalizeAiEndpoint(endpointOrBaseUrl);
 
   try {
-    const response = await fetcher(`${cleanBaseUrl}/chat/completions`, {
+    const response = await fetcher(endpointUrl, {
       method: 'POST',
       cache: 'no-store',
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(timeoutMs),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${trimmedKey}`,
@@ -166,11 +194,14 @@ export async function requestAiInvestigation(
       output,
       issue: null,
     };
-  } catch {
+  } catch (err) {
+    const isTimeout = err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError');
     return {
       status: 'FAILED',
       output: null,
-      issue: 'AI provider request timed out or network error occurred.',
+      issue: isTimeout
+        ? 'AI provider request timed out (10s threshold reached). Falling back to deterministic investigation.'
+        : 'AI provider request network error occurred. Falling back to deterministic investigation.',
     };
   }
 }

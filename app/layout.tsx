@@ -1,6 +1,12 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { THEME_INIT_SCRIPT } from '@/components/theme';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 export const metadata: Metadata = {
   title: 'WickLink | Market Dislocation Intelligence',
   description: 'WickLink finds price dislocations between tokenized US equities and their reference markets, then investigates what may be driving the difference.',

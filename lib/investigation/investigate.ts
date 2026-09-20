@@ -3,6 +3,7 @@ import { collectMarketEvidence } from './evidence.ts';
 import { isSupportedSymbol } from './symbols.ts';
 import { deriveDeterministicSignals } from './signals.ts';
 import { evaluateHypotheses } from './hypotheses.ts';
+import { calculateDataQualityScore } from './quality.ts';
 import { runAiInvestigation } from '../ai/provider.ts';
 import type { InvestigationAssessment, InvestigationReport } from './types.ts';
 
@@ -15,16 +16,41 @@ export async function executeInvestigation(rawSymbol: string): Promise<Investiga
     throw new Error(`Symbol '${rawSymbol}' is not a supported Reality instrument.`);
   }
 
-  // 1. Gather fresh factual market evidence
+  // 1. Gather fresh factual market evidence (deterministic)
   const evidence = await collectMarketEvidence(symbol);
 
   // 2. Derive deterministic signals from evidence
   const signals = deriveDeterministicSignals(evidence);
 
-  // 3. Formulate baseline hypothesis evidence matrix
+  // 3. Compute deterministic Data Quality Score (independent of AI)
+  const dataQuality = calculateDataQualityScore(evidence);
+
+  // 4. Formulate baseline hypothesis evidence matrix (deterministic)
   const baselineHypotheses = evaluateHypotheses(evidence);
 
-  // 4. Run AI investigation (if credentials configured)
+  // 5. Compute closed-market intelligence callout and deterministic "Why This Matters"
+  const isOffHours = evidence.marketSession === 'CLOSED' || evidence.marketSession === 'OVERNIGHT';
+  const closedMarketCallout = isOffHours
+    ? "Wall Street closed. Price discovery didn't. Continuous equity cash auctions are inactive while tokenized venues trade 24/7."
+    : null;
+
+  const topHypothesis = [...baselineHypotheses].sort((a, b) => b.confidence - a.confidence)[0];
+  const dislocationStr = evidence.rawDislocationPercent !== null
+    ? `${evidence.rawDislocationPercent > 0 ? '+' : ''}${evidence.rawDislocationPercent.toFixed(4)}%`
+    : 'withheld';
+
+  let deterministicWhyThisMatters = '';
+  if (isOffHours) {
+    deterministicWhyThisMatters = `${symbol} surfaced due to 24/7 off-hours price discovery on Bitget while primary US equity cash auctions are inactive.`;
+  } else if (evidence.rawDislocationPercent !== null && Math.abs(evidence.rawDislocationPercent) >= 0.25) {
+    deterministicWhyThisMatters = `${symbol} surfaced with an active dislocation of ${dislocationStr}, exceeding standard liquidity spread thresholds.`;
+  } else if (evidence.bitgetSpreadPercent !== null && evidence.bitgetSpreadPercent > 0.1) {
+    deterministicWhyThisMatters = `${symbol} surfaced due to elevated quoting spread (${evidence.bitgetSpreadPercent.toFixed(3)}%) on the tokenized order book relative to reference.`;
+  } else {
+    deterministicWhyThisMatters = `${symbol} is monitored under standard research surveillance with ${evidence.marketSession} session reference alignment.`;
+  }
+
+  // 6. Run AI investigation independently (fast timeout, server-side only)
   const aiResult = await runAiInvestigation({
     evidence,
     signals,
@@ -35,7 +61,11 @@ export async function executeInvestigation(rawSymbol: string): Promise<Investiga
   let finalHypotheses = baselineHypotheses;
 
   if (aiResult.status === 'COMPLETED' && aiResult.output) {
-    assessment = aiResult.output.assessment;
+    assessment = {
+      ...aiResult.output.assessment,
+      whyThisMatters: aiResult.output.assessment.whyThisMatters || deterministicWhyThisMatters,
+      closedMarketCallout,
+    };
     if (aiResult.output.hypotheses.length > 0) {
       finalHypotheses = aiResult.output.hypotheses.map(aiH => {
         const baseline = baselineHypotheses.find(b => b.id === aiH.id);
@@ -47,12 +77,7 @@ export async function executeInvestigation(rawSymbol: string): Promise<Investiga
       });
     }
   } else {
-    // Deterministic fallback assessment: synthesizes findings from rule-based signals
-    const topHypothesis = [...baselineHypotheses].sort((a, b) => b.confidence - a.confidence)[0];
-    const dislocationStr = evidence.rawDislocationPercent !== null
-      ? `${evidence.rawDislocationPercent > 0 ? '+' : ''}${evidence.rawDislocationPercent.toFixed(4)}%`
-      : 'withheld';
-
+    // Deterministic fallback assessment: synthesizes findings from rule-based signals and heuristics
     let fallbackVerdict: InvestigationAssessment['dislocationVerdict'] = 'MARKET_STRUCTURE_EFFECT';
     if (evidence.comparisonStatus !== 'AVAILABLE') {
       fallbackVerdict = 'INSUFFICIENT_DATA';
@@ -84,6 +109,8 @@ export async function executeInvestigation(rawSymbol: string): Promise<Investiga
     assessment = {
       summary: `Deterministic review for ${symbol}: Observed dislocation of ${dislocationStr} under US ${evidence.marketSession} session rules. Most active signal: ${topHypothesis?.title ?? 'None'}.`,
       primaryExplanation: topHypothesis ? `${topHypothesis.title}: ${topHypothesis.supportingEvidence[0] ?? topHypothesis.description}` : 'Pending data resolution.',
+      whyThisMatters: deterministicWhyThisMatters,
+      closedMarketCallout,
       dislocationVerdict: fallbackVerdict,
       keyRisks: [
         'Raw USDT-vs-USD comparison without currency basis adjustment.',
@@ -110,6 +137,7 @@ export async function executeInvestigation(rawSymbol: string): Promise<Investiga
     durationMs,
     evidence,
     signals,
+    dataQuality,
     hypotheses: finalHypotheses,
     assessment,
     aiStatus: aiResult.status,

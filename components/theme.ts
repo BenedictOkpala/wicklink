@@ -3,8 +3,7 @@ export const THEME_STORAGE_KEY = 'nightshift-theme';
 
 // Runs in the document head before the body is painted. Storage can be blocked.
 export const THEME_INIT_SCRIPT = `(() => {
-  let theme = 'dark';
-  try { theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; } catch {}
+  let theme = 'light';
   try {
     const saved = window.localStorage.getItem('nightshift-theme');
     if (saved === 'dark' || saved === 'light') theme = saved;

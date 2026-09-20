@@ -1,0 +1,66 @@
+﻿.overview { max-width: 1160px; margin: 0 auto; }
+.marketContext { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 22px; border-bottom: 1px solid var(--border); padding: 19px 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.surveillance { display: inline-flex; align-items: center; gap: 8px; color: var(--text); }
+.connected, .disconnected { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.disconnected { background: var(--muted); }
+.freshness { margin-left: auto; }
+.watch { padding: 42px 0 28px; }
+.heading { margin-bottom: 30px; }
+.eyebrow { font-size: 11px; letter-spacing: 1.5px; color: var(--muted); }
+.heading h2 { margin: 10px 0 9px; font-size: 32px; font-weight: 550; letter-spacing: -1px; color: var(--text); }
+.heading p { color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 580px; }
+.list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
+.item { display: grid; grid-template-columns: 28px minmax(160px,1fr) minmax(200px,1.1fr) 138px; column-gap: 24px; row-gap: 10px; padding: 27px 0; border-bottom: 1px solid var(--border); align-items: start; }
+.rank { grid-column: 1; grid-row: 1; padding-top: 7px; font-family: Consolas, monospace; font-size: 12px; color: var(--muted); }
+.identity { grid-column: 2; grid-row: 1; }
+.identity h3 { font-size: 21px; font-weight: 650; letter-spacing: -.4px; margin: 0 0 4px; }
+.identity>span { color: var(--muted); font-size: 13px; }
+.difference { grid-column: 4; grid-row: 1; text-align: right; }
+.difference strong { display: block; color: var(--text); font: 500 24px/1.3 Consolas, monospace; letter-spacing: -.8px; white-space: nowrap; }
+.difference>span { display: block; font-size: 12px; color: var(--muted); margin-top: 5px; }
+.prices { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; gap: 6px; padding-top: 3px; }
+.prices b { font: 500 15px Consolas, monospace; color: var(--text); }
+.prices small { font-size: 12px; color: var(--muted); }
+.context { grid-column: 2 / 4; grid-row: 2; color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
+.provenance { grid-column: 2 / 4; grid-row: 3; color: var(--muted); font-size: 12px; }
+.provenance summary { cursor: pointer; width: fit-content; padding: 5px 0; }
+.provenance dl { margin: 12px 0; }
+.provenance dl>div { display: flex; gap: 12px; margin: 5px 0; }
+.provenance dt { min-width: 125px; }
+.provenance dd { margin: 0; overflow-wrap: anywhere; color: var(--text); }
+.provenance p { margin-top: 8px; line-height: 1.6; }
+.investigate { grid-column: 4; grid-row: 2 / 4; align-self: end; justify-self: end; display: inline-flex; align-items: center; gap: 13px; min-height: 44px; padding: 8px 0 8px 12px; color: var(--nav-active-text); border: 0; background: transparent; font-size: 14px; font-weight: 600; }
+.investigate:hover { color: var(--accent-hover); }
+.investigate:disabled { opacity: .55; cursor: default; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 0; }
+.footer button { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 0; border: 0; background: transparent; color: var(--text); font-size: 14px; font-weight: 550; }
+.footer>span { font-size: 12px; color: var(--muted); }
+.empty { padding: 44px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.emptyRule { display: block; width: 32px; height: 2px; background: var(--border); margin-bottom: 23px; }
+.empty h3 { font-size: 20px; font-weight: 500; margin-bottom: 12px; }
+.empty p { max-width: 500px; color: var(--muted); line-height: 1.7; font-size: 14px; }
+@media (max-width: 900px) { .item { column-gap: 16px; grid-template-columns: 22px minmax(140px,1fr) minmax(160px,1fr) 125px; } }
+@media (max-width: 768px) {
+  .marketContext { font-size: 12px; padding: 13px 0; gap: 4px 16px; }
+  .marketContext>span:nth-child(2) { flex-basis: 100%; order: 3; }
+  .freshness { margin-left: auto; }
+  .watch { padding: 25px 0 15px; }
+  .heading { margin-bottom: 21px; }
+  .eyebrow { display: none; }
+  .heading h2 { font-size: 27px; margin-top: 0; }
+  .heading p { font-size: 13px; }
+  .item { grid-template-columns: minmax(0,1fr) auto; gap: 12px 14px; padding: 22px 0; }
+  .rank { display: none; }
+  .identity { grid-column: 1; grid-row: 1; }
+  .identity h3 { font-size: 20px; }
+  .difference { grid-column: 2; grid-row: 1; }
+  .difference strong { font-size: 25px; }
+  .prices { grid-column: 1 / -1; grid-row: 2; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 5px 16px; padding: 0; }
+  .prices>span { display: flex; flex-direction: column; gap: 4px; }
+  .context { grid-column: 1 / -1; grid-row: 3; }
+  .provenance { grid-column: 1 / -1; grid-row: 5; }
+  .provenance summary { min-height: 36px; padding: 8px 0; }
+  .provenance dl>div { flex-direction: column; gap: 3px; }
+  .investigate { grid-column: 1 / -1; grid-row: 4; justify-self: start; padding-left: 0; }
+  .footer>span { display: none; }
+}

@@ -4,18 +4,21 @@ import type { MarketResponse } from '@/lib/bitget/types';
 import type { InvestigationReport } from '@/lib/investigation/types';
 import { ageAsset, formatAge } from '@/lib/market/presentation';
 import AssetRow from './AssetRow';
+import { buildOverviewViewModel } from '@/lib/overview/view-model';
+import shell from './ApplicationShell.module.css';
 import AssetDetail from './AssetDetail';
-import StatusBadge from './StatusBadge';
 import Navigation from './Navigation';
+import ThemeToggle from './ThemeToggle';
 import ActivityPanel from './ActivityPanel';
 import InterfaceIcon from './InterfaceIcon';
 import OverviewView from './OverviewView';
 import AssetSearch from './AssetSearch';
+import IntelligenceStrip from './IntelligenceStrip';
 import { DataSourcesView, InvestigationsView, SystemStatusView } from './ResearchViews';
-import { aggregateStatus, sessionLabel, timeLabel } from './ui-format';
+
 import { workspaceReducer, type WorkspaceView } from './workspace-state';
 
-const titles: Record<WorkspaceView, string> = { overview: 'Overview', markets: 'Markets', investigations: 'Investigations', sources: 'Data Sources', system: 'System Status' };
+const titles: Record<WorkspaceView, string> = { overview: 'Overview', markets: 'Markets', investigations: 'Investigations', sources: 'Methodology', system: 'System Status' };
 
 export default function MarketMonitor({ initialData }: { initialData: MarketResponse }) {
   const [data, setData] = useState(initialData);
@@ -28,6 +31,11 @@ export default function MarketMonitor({ initialData }: { initialData: MarketResp
   const [investigationLoading, setInvestigationLoading] = useState(false);
   const [investigationStageIndex, setInvestigationStageIndex] = useState(0);
   const [investigationError, setInvestigationError] = useState<string | null>(null);
+  const [navDrawerOpen, setNavDrawerOpen] = useState(false);
+  const [marketViewMode, setMarketViewMode] = useState<'screener' | 'surveillance'>('screener');
+  const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
+  const [sparklinesLoading, setSparklinesLoading] = useState(false);
+  const navToggleRef = useRef<HTMLButtonElement | null>(null);
   const investigationTimer = useRef<NodeJS.Timeout | null>(null);
   const refreshedTimer = useRef<NodeJS.Timeout | null>(null);
   const active = useRef(false);
@@ -61,6 +69,79 @@ export default function MarketMonitor({ initialData }: { initialData: MarketResp
       if (refreshedTimer.current) clearTimeout(refreshedTimer.current);
     };
   }, [refresh]);
+
+  const fetchSparklines = useCallback(async () => {
+    try {
+      setSparklinesLoading(true);
+      const res = await fetch('/api/sparklines');
+      if (res.ok) {
+        const json = (await res.json()) as { sparklines?: Record<string, number[]> };
+        if (json?.sparklines) {
+          setSparklines(json.sparklines);
+        }
+      }
+    } catch {
+      // Graceful fallback to null points
+    } finally {
+      setSparklinesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const initial = setTimeout(() => void fetchSparklines(), 0);
+    const sparklineInterval = setInterval(() => void fetchSparklines(), 60000);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(sparklineInterval);
+    };
+  }, [fetchSparklines]);
+
+  useEffect(() => {
+    if (!navDrawerOpen) return;
+    const drawer = document.getElementById('navigation-drawer');
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    drawer?.querySelector<HTMLButtonElement>('.drawer-close-btn')?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        const buttons = Array.from(drawer?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
+        const first = buttons[0], last = buttons[buttons.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+        if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
+      if (e.key === 'Escape') {
+        setNavDrawerOpen(false);
+        navToggleRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => { window.removeEventListener('keydown', onKeyDown); document.body.style.overflow = previousOverflow; };
+  }, [navDrawerOpen]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    document.documentElement.classList.add('reveal-enabled');
+    const sections = document.querySelectorAll('.scroll-section');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+          }
+        });
+      },
+      { threshold: 0.05, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove('reveal-enabled');
+    };
+  }, []);
 
   const runInvestigation = useCallback(async (targetSymbol: string) => {
     if (investigationLoading) return;
@@ -101,9 +182,9 @@ export default function MarketMonitor({ initialData }: { initialData: MarketResp
 
   const assets = error ? [] : data.assets.map(asset => ageAsset(asset, now));
   const selectedAsset = assets.find(asset => asset.symbol === workspace.selectedSymbol) ?? assets[0];
-  const status = error ? 'ERROR' : assets.length ? aggregateStatus(assets.map(asset => asset.dataStatus)) : data.dataStatus;
   const comparisons = assets.filter(asset => asset.comparisonStatus === 'AVAILABLE').length;
   const session = error ? 'UNKNOWN' : data.sessionDiagnostics?.session ?? assets[0]?.marketSession;
+  const overviewModel = buildOverviewViewModel({ assets, marketSession: session ?? 'UNKNOWN', limit: 5, surveillance: { fetchedAt: data.fetchedAt, snapshotAgeMs: Math.max(0, now - Date.parse(data.fetchedAt)), refreshing: loading, connection: error ? 'ERROR' : data.dataStatus === 'ERROR' ? 'UNKNOWN' : 'CONNECTED' } });
   const isNavigatingRef = useRef(false);
   const activeViewRef = useRef(workspace.view);
   const navTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -119,22 +200,25 @@ export default function MarketMonitor({ initialData }: { initialData: MarketResp
     if (navTimerRef.current) clearTimeout(navTimerRef.current);
     navTimerRef.current = setTimeout(() => {
       isNavigatingRef.current = false;
-    }, 850);
+    }, 1400);
 
     const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const behavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
 
     if (view === 'overview') {
       window.scrollTo({ top: 0, behavior });
+      requestAnimationFrame(() => {
+        document.getElementById('section-overview')?.focus({ preventScroll: true });
+      });
     } else {
       const el = document.getElementById(`section-${view}`);
       if (el) {
         el.scrollIntoView({ behavior, block: 'start' });
+        requestAnimationFrame(() => {
+          el.focus({ preventScroll: true });
+        });
       }
     }
-    requestAnimationFrame(() => {
-      document.getElementById('workspace-title')?.focus({ preventScroll: true });
-    });
   }, []);
 
   const investigate = useCallback((symbol: string) => {
@@ -145,7 +229,7 @@ export default function MarketMonitor({ initialData }: { initialData: MarketResp
     if (navTimerRef.current) clearTimeout(navTimerRef.current);
     navTimerRef.current = setTimeout(() => {
       isNavigatingRef.current = false;
-    }, 850);
+    }, 1400);
 
     const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const behavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
@@ -153,16 +237,16 @@ export default function MarketMonitor({ initialData }: { initialData: MarketResp
     const target = document.getElementById('section-investigations');
     if (target) {
       target.scrollIntoView({ behavior, block: 'start' });
+      requestAnimationFrame(() => {
+        target.focus({ preventScroll: true });
+      });
     }
-    requestAnimationFrame(() => {
-      document.getElementById('workspace-title')?.focus({ preventScroll: true });
-    });
     void runInvestigation(symbol);
   }, [investigationLoading, runInvestigation]);
 
   const handleSelectAsset = useCallback((symbol: string) => {
     dispatch({ type: 'select', symbol });
-    if (workspace.view === 'sources' || workspace.view === 'system') {
+    if (workspace.view === 'overview' || workspace.view === 'investigations' || workspace.view === 'sources' || workspace.view === 'system') {
       navigate('markets');
     }
   }, [workspace.view, navigate]);
@@ -227,45 +311,183 @@ export default function MarketMonitor({ initialData }: { initialData: MarketResp
     };
   }, []);
 
-  return <div className="app-shell"><a href="#main-workspace" className="skip-link">Skip to workspace</a><Navigation view={workspace.view} onNavigate={navigate}/>
-    <main id="main-workspace" className="main-workspace"><header className="workspace-header"><div className="header-title-block"><span className="header-eyebrow">WickLink Intelligence</span><h1 id="workspace-title" tabIndex={-1}>{titles[workspace.view]}</h1></div><div className="header-controls"><AssetSearch assets={assets} onSelect={handleSelectAsset}/><div className="session-indicator"><span>US Market</span><strong>{sessionLabel(session)}</strong></div><StatusBadge status={status}/><button className={`refresh-button ${justRefreshed ? 'just-refreshed' : ''}`} onClick={() => void refresh()} disabled={loading} aria-label={loading ? 'Refreshing market data' : 'Refresh market data'}><span className={loading ? 'refreshing' : ''}><InterfaceIcon name="refresh"/></span><span>{loading ? 'Refreshing' : justRefreshed ? 'Updated' : 'Refresh'}</span></button></div></header>
-    <div className="workspace-content">
-      <div className="refresh-meta"><span>Last check <time className={justRefreshed ? 'time-flash' : ''}>{timeLabel(data.fetchedAt)}</time><span className="data-divider">/</span>{formatAge(Math.max(0, now - Date.parse(data.fetchedAt)))}</span><span>Auto-refresh every 15s</span></div>
-      {error && <div className="connection-alert" role="alert"><strong>Connection interrupted</strong><span>{error} Previous quotes are hidden until reconnection.</span></div>}
-      <section id="section-overview" aria-label="Overview" className="scroll-section">
-        <OverviewView
-          assets={assets}
-          data={data}
-          selectedAsset={selectedAsset}
-          onSelect={(symbol) => dispatch({ type: 'select', symbol })}
-          onInvestigate={investigate}
-          investigating={investigationLoading}
-          now={now}
-          onViewAllMarkets={() => navigate('markets')}
+  return (
+    <div className={`app-shell ${shell.frame}`}>
+      <a href="#main-workspace" className="skip-link">Skip to workspace</a>
+      {navDrawerOpen && (
+        <div
+          className="nav-drawer-backdrop"
+          onClick={() => {
+            setNavDrawerOpen(false);
+            navToggleRef.current?.focus();
+          }}
+          aria-hidden="true"
         />
-      </section>
+      )}
+      <Navigation
+        view={workspace.view}
+        onNavigate={navigate}
+        isOpen={navDrawerOpen}
+        status={<span className="drawer-surveillance"><i aria-hidden="true" />{overviewModel.surveillance.connection === 'CONNECTED' ? 'Surveillance active' : overviewModel.surveillance.connection === 'ERROR' ? 'Connection interrupted' : 'Surveillance unverified'}</span>}
+        freshness={<span>{loading ? 'Refreshing snapshot...' : 'Snapshot '+formatAge(overviewModel.surveillance.snapshotAgeMs)}</span>}
+        refreshControl={<button
+              className={`refresh-button ${justRefreshed ? 'just-refreshed' : ''}`}
+              onClick={() => void refresh()}
+              disabled={loading}
+              aria-label={loading ? 'Refreshing market data' : 'Refresh market data'}
+            >
+              <span className={loading ? 'refreshing' : ''}>
+                <InterfaceIcon name="refresh" />
+              </span>
+              <span>{loading ? 'Refreshing' : justRefreshed ? 'Updated' : 'Refresh'}</span>
+            </button>}
+        onClose={() => {
+          setNavDrawerOpen(false);
+          navToggleRef.current?.focus();
+        }}
+      />
+      <main id="main-workspace" className="main-workspace" inert={navDrawerOpen}>
+        <header className="workspace-header">
+          <div className="header-brand-group">
+            <button
+              ref={navToggleRef}
+              id="nav-drawer-toggle"
+              type="button"
+              className={`sidebar-toggle-btn dark-nav-toggle ${navDrawerOpen ? 'is-active' : ''}`}
+              onClick={() => setNavDrawerOpen((prev) => !prev)}
+              aria-expanded={navDrawerOpen}
+              aria-controls="navigation-drawer"
+              aria-label={navDrawerOpen ? 'Close navigation drawer' : 'Open navigation drawer'}
+            >
+              <InterfaceIcon name={navDrawerOpen ? 'close' : 'sidebar'} />
+            </button>
+            <div className="header-title-block">
+              <span className="header-eyebrow">WickLink Intelligence</span>
+              <h1 id="workspace-title" tabIndex={-1}>{titles[workspace.view]}</h1>
+            </div>
+          </div>
+          <div className="header-controls">
+            <AssetSearch assets={assets} onSelect={handleSelectAsset} />
 
-      <section id="section-markets" aria-label="Markets" className="scroll-section">
-        <section className="panel market-panel" aria-label="Reality market overview" aria-busy={loading}><div className="section-heading"><div className="section-title"><h2>REALITY MARKET OVERVIEW</h2><span>{assets.length} instruments</span></div><span className="comparison-count">{comparisons} / {assets.length} comparisons available</span></div>
-          <div className="table-container"><table className="market-table"><thead><tr>{['ASSET', 'BITGET RTOKEN', 'UNDERLYING', 'DISLOCATION', 'SESSION', 'STATUS'].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead><tbody>{assets.map(asset => <AssetRow key={asset.symbol} asset={asset} selected={asset.symbol === selectedAsset?.symbol} onSelect={() => dispatch({ type: 'select', symbol: asset.symbol })}/>)}{!assets.length && <tr className="empty-row"><td colSpan={6}><span className="empty-state-label">{loading ? 'CONNECTING' : 'DATA UNAVAILABLE'}</span><h3>{loading ? 'Checking the market feeds…' : 'Waiting for verified market data.'}</h3><p>{error ?? data.message}</p></td></tr>}</tbody></table></div>
-          <div className="market-footer"><span><span className="small-square"/>Bitget Reality + Alpaca references</span><span>Raw differences · No FX adjustment</span></div>
-        </section>
-        <div className="research-layout"><AssetDetail asset={selectedAsset} diagnostics={data.sessionDiagnostics} onInvestigate={investigate} investigating={investigationLoading} loading={loading} justRefreshed={justRefreshed}/><ActivityPanel data={data} error={error}/></div>
-      </section>
+            <ThemeToggle />
+          </div>
+        </header>
 
-      <section id="section-investigations" aria-label="Investigations" className="scroll-section">
-        <InvestigationsView symbol={workspace.investigationSymbol} assets={assets} onMarkets={() => navigate('markets')} report={investigationReport} loading={investigationLoading} stageIndex={investigationStageIndex} error={investigationError} onInvestigate={(symbol) => { dispatch({ type: 'investigate', symbol }); void runInvestigation(symbol); }}/>
-      </section>
+        <div className="workspace-content">
+          {error && <div className="connection-alert" role="alert"><strong>Connection interrupted</strong><span>{error} Previous quotes are hidden until reconnection.</span></div>}
 
-      <section id="section-sources" aria-label="Data Sources" className="scroll-section">
-        <DataSourcesView assets={assets} data={data} error={error}/>
-      </section>
+          <section id="section-overview" tabIndex={-1} aria-label="Overview" className="scroll-section">
+            <OverviewView viewModel={overviewModel} onInvestigate={investigate} investigating={investigationLoading} onViewAllMarkets={() => navigate('markets')}/>
+          </section>
 
-      <section id="section-system" aria-label="System Status" className="scroll-section">
-        <SystemStatusView assets={assets} data={data} error={error}/>
-      </section>
+          <section id="section-markets" tabIndex={-1} aria-label="Markets" className="scroll-section">
+            <IntelligenceStrip assets={assets} onSelect={handleSelectAsset}/>
+            <section className={`panel market-panel market-mode-${marketViewMode}`} aria-label="Reality market overview" aria-busy={loading}>
+              <div className="section-heading">
+                <div className="section-title">
+                  <h2>REALITY MARKET OVERVIEW</h2>
+                  <span>{assets.length} instruments</span>
+                </div>
+                <div className="market-mode-toggle" role="group" aria-label="Market view mode">
+                  <button
+                    type="button"
+                    className={`market-mode-btn ${marketViewMode === 'screener' ? 'active' : ''}`}
+                    onClick={() => setMarketViewMode('screener')}
+                    aria-pressed={marketViewMode === 'screener'}
+                  >
+                    Market Overview
+                  </button>
+                  <button
+                    type="button"
+                    className={`market-mode-btn ${marketViewMode === 'surveillance' ? 'active' : ''}`}
+                    onClick={() => setMarketViewMode('surveillance')}
+                    aria-pressed={marketViewMode === 'surveillance'}
+                  >
+                    Deep Surveillance
+                  </button>
+                </div>
+                <span className="comparison-count">{comparisons} / {assets.length} comparisons available</span>
+              </div>
+              <div className="table-container">
+                <table className="market-table">
+                  <thead>
+                    <tr>
+                      {marketViewMode === 'screener'
+                        ? ['ASSET', 'BITGET RTOKEN', 'UNDERLYING', 'DISLOCATION', 'SESSION', 'STATUS'].map(label => (
+                            <th scope="col" key={label}>{label}</th>
+                          ))
+                        : ['ASSET', 'BITGET RTOKEN & TREND', 'UNDERLYING & SPREAD', 'DISLOCATION & BPS', 'SESSION', 'STATUS'].map(label => (
+                            <th scope="col" key={label}>{label}</th>
+                          ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assets.map(asset => (
+                      <AssetRow
+                        key={asset.symbol}
+                        asset={asset}
+                        selected={asset.symbol === selectedAsset?.symbol}
+                        onSelect={() => dispatch({ type: 'select', symbol: asset.symbol })}
+                        onInvestigate={investigate}
+                        sparkline={sparklines[asset.symbol]}
+                        sparklineLoading={sparklinesLoading}
+                        viewMode={marketViewMode}
+                      />
+                    ))}
+                    {!assets.length && (
+                      <tr className="empty-row">
+                        <td colSpan={6}>
+                          <span className="empty-state-label">{loading ? 'CONNECTING' : 'DATA UNAVAILABLE'}</span>
+                          <h3>{loading ? 'Checking the market feeds…' : 'Waiting for verified market data.'}</h3>
+                          <p>{error ?? data.message}</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="market-footer">
+                <span><span className="small-square"/>Bitget Reality + Alpaca references</span>
+                <span>Raw differences · No FX adjustment</span>
+              </div>
+            </section>
+            <div className="research-layout">
+              <AssetDetail asset={selectedAsset} diagnostics={data.sessionDiagnostics} onInvestigate={investigate} investigating={investigationLoading} loading={loading} justRefreshed={justRefreshed}/>
+              <ActivityPanel data={data} error={error}/>
+            </div>
+          </section>
 
-      <footer className="workspace-footer"><span>Real-time cross-market price discovery &middot; Bitget Reality &amp; Alpaca</span><span>Read-only market intelligence &middot; All timestamps UTC</span></footer>
-    </div></main>
-  </div>;
+          <section id="section-investigations" tabIndex={-1} aria-label="Investigations" className="scroll-section">
+            <InvestigationsView
+              symbol={workspace.investigationSymbol}
+              assets={assets}
+              onMarkets={() => navigate('markets')}
+              report={investigationReport}
+              loading={investigationLoading}
+              stageIndex={investigationStageIndex}
+              error={investigationError}
+              onInvestigate={(symbol) => {
+                dispatch({ type: 'investigate', symbol });
+                void runInvestigation(symbol);
+              }}
+            />
+          </section>
+
+          <section id="section-sources" tabIndex={-1} aria-label="Data Sources" className="scroll-section">
+            <DataSourcesView assets={assets} data={data} error={error}/>
+          </section>
+
+          <section id="section-system" tabIndex={-1} aria-label="System Status" className="scroll-section">
+            <SystemStatusView assets={assets} data={data} error={error}/>
+          </section>
+
+          <footer className="workspace-footer">
+            <span>Real-time cross-market price discovery &middot; Bitget Reality &amp; Alpaca</span>
+            <span>Read-only market intelligence &middot; All timestamps UTC</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+  );
 }
+

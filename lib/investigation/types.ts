@@ -116,7 +116,29 @@ export type HypothesisId =
   | 'MARKET_EVENT'
   | 'INSUFFICIENT_EVIDENCE';
 
-export type HypothesisStatus = 'SUPPORTED' | 'PLAUSIBLE' | 'WEAK' | 'UNRESOLVED';
+export type HypothesisStatus =
+  | 'SUPPORTED'
+  | 'PARTIALLY_SUPPORTED'
+  | 'PLAUSIBLE'
+  | 'WEAK'
+  | 'CONTRADICTED'
+  | 'INSUFFICIENT_DATA'
+  | 'UNRESOLVED';
+
+export interface DataQualityFactor {
+  name: string;
+  score: number; // 0-100
+  weight: number;
+  status: 'EXCELLENT' | 'GOOD' | 'DEGRADED' | 'INSUFFICIENT';
+  description: string;
+}
+
+export interface DataQualityScore {
+  overallScore: number; // 0 - 100 deterministic score
+  grade: 'HIGH' | 'MODERATE' | 'LOW' | 'CRITICAL';
+  factors: DataQualityFactor[];
+  summary: string;
+}
 
 export interface InvestigationHypothesis {
   id: HypothesisId;
@@ -126,7 +148,7 @@ export interface InvestigationHypothesis {
   contradictingEvidence: string[];
   missingEvidence?: string[];
   confidenceRationale?: string;
-  confidence: number; // 0.0 - 1.0 heuristic score
+  confidence: number; // 0.0 - 1.0 qualitative heuristic score (not statistical probability)
   status: HypothesisStatus;
 }
 
@@ -139,6 +161,8 @@ export type DislocationVerdict =
 export interface InvestigationAssessment {
   summary: string;
   primaryExplanation: string;
+  whyThisMatters: string;
+  closedMarketCallout?: string | null;
   dislocationVerdict: DislocationVerdict;
   keyRisks: string[];
   keyEvidencePoints: string[];
@@ -156,6 +180,7 @@ export interface InvestigationReport {
   durationMs: number;
   evidence: InvestigationEvidence;
   signals: InvestigationSignal[];
+  dataQuality: DataQualityScore;
   hypotheses: InvestigationHypothesis[];
   assessment: InvestigationAssessment | null;
   aiStatus: AiAnalysisStatus;

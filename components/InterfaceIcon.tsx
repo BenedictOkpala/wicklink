@@ -15,9 +15,31 @@ export type IconName =
   | 'search'
   | 'mountain'
   | 'wicklink'
-  | 'alert';
+  | 'alert'
+  | 'close'
+  | 'menu'
+  | 'sidebar';
 
 const paths: Record<IconName, React.ReactNode> = {
+  sidebar: (
+    <>
+      <rect width="18" height="18" x="3" y="3" rx="3" />
+      <path d="M9 3v18" />
+    </>
+  ),
+  menu: (
+    <>
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
+    </>
+  ),
+  close: (
+    <>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </>
+  ),
   overview: (
     <>
       <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H4a1 1 0 0 1-1-1V9.5Z" />

@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { deriveDeterministicSignals } from '../lib/investigation/signals.ts';
 import { evaluateHypotheses } from '../lib/investigation/hypotheses.ts';
 import { isSupportedSymbol } from '../lib/investigation/symbols.ts';
-import { requestAiInvestigation, parseAiOutput } from '../lib/ai/request.ts';
+import { calculateDataQualityScore } from '../lib/investigation/quality.ts';
+import { requestAiInvestigation, parseAiOutput, normalizeAiEndpoint } from '../lib/ai/request.ts';
 import { buildUserPrompt, SYSTEM_PROMPT } from '../lib/ai/prompts.ts';
 import type { InvestigationEvidence } from '../lib/investigation/types.ts';
 
@@ -612,4 +613,164 @@ test('AI system prompt and user prompt strictly enforce objective analysis and e
   assert.ok(prompt.includes('dislocationVerdict'));
   assert.ok(prompt.includes('catalystEvidence'));
 });
+
+test('normalizeAiEndpoint normalizes base URLs and explicit completions endpoints', () => {
+  assert.equal(normalizeAiEndpoint('https://api.openai.com/v1'), 'https://api.openai.com/v1/chat/completions');
+  assert.equal(normalizeAiEndpoint('https://api.openai.com/v1/'), 'https://api.openai.com/v1/chat/completions');
+  assert.equal(normalizeAiEndpoint('https://api.openai.com/v1/chat/completions'), 'https://api.openai.com/v1/chat/completions');
+  assert.equal(normalizeAiEndpoint('https://openrouter.ai/api/v1'), 'https://openrouter.ai/api/v1/chat/completions');
+  assert.equal(normalizeAiEndpoint(''), 'https://api.openai.com/v1/chat/completions');
+});
+
+test('calculateDataQualityScore derives deterministic scores and grades across varying market conditions', () => {
+  // 1. Fresh synchronized live evidence
+  const freshEvidence = createMockEvidence({
+    tokenizedAgeMs: 4000,
+    referenceAgeMs: 3000,
+    timestampSkewMs: 1000,
+    bitgetStatus: 'LIVE',
+    referenceStatus: 'LIVE',
+    comparisonStatus: 'AVAILABLE',
+    referenceType: 'TRADE',
+  });
+  const freshScore = calculateDataQualityScore(freshEvidence);
+  assert.equal(freshScore.grade, 'HIGH');
+  assert.ok(freshScore.overallScore >= 85);
+  assert.equal(freshScore.factors.length, 4);
+
+  // 2. Off-hours indicative midpoint evidence
+  const offHoursEvidence = createMockEvidence({
+    marketSession: 'OVERNIGHT',
+    referenceType: 'INDICATIVE_MIDPOINT',
+    tokenizedAgeMs: 8000,
+    referenceAgeMs: 12000,
+    timestampSkewMs: 4000,
+  });
+  const offHoursScore = calculateDataQualityScore(offHoursEvidence);
+  assert.ok(offHoursScore.overallScore >= 65);
+  assert.ok(offHoursScore.grade === 'HIGH' || offHoursScore.grade === 'MODERATE');
+
+  // 3. Stale / asynchronous degraded evidence
+  const staleEvidence = createMockEvidence({
+    tokenizedAgeMs: 85000,
+    referenceAgeMs: 90000,
+    timestampSkewMs: 45000,
+    bitgetStatus: 'DELAYED',
+    referenceStatus: 'DELAYED',
+    comparisonStatus: 'STALE',
+    orderbook: null,
+  });
+  const staleScore = calculateDataQualityScore(staleEvidence);
+  assert.ok(staleScore.overallScore < 60);
+  assert.ok(staleScore.grade === 'LOW' || staleScore.grade === 'CRITICAL');
+
+  // 4. Missing prices
+  const emptyEvidence = createMockEvidence({
+    tokenizedPrice: null,
+    referencePrice: null,
+    bitgetStatus: 'UNAVAILABLE',
+    referenceStatus: 'UNAVAILABLE',
+    comparisonStatus: 'UNAVAILABLE',
+    orderbook: null,
+  });
+  const emptyScore = calculateDataQualityScore(emptyEvidence);
+  assert.equal(emptyScore.grade, 'CRITICAL');
+  assert.ok(emptyScore.overallScore < 40);
+});
+
+test('AI output parser validates extended hypothesis statuses and whyThisMatters', () => {
+  const validV2 = {
+    assessment: {
+      summary: 'Executive synthesis of NVDA dislocation.',
+      primaryExplanation: 'Off-hours liquidity disparity.',
+      whyThisMatters: 'NVDA surfaced due to 24/7 off-hours price discovery while US cash equity markets are closed.',
+      dislocationVerdict: 'MARKET_STRUCTURE_EFFECT',
+      keyRisks: ['Currency basis friction'],
+      keyEvidencePoints: ['Quoting spread 0.04%'],
+      limitations: ['Raw USDT comparison'],
+    },
+    hypotheses: [
+      {
+        id: 'OFF_HOURS_PRICE_DISCOVERY',
+        title: 'Off-Hours Price Discovery',
+        description: 'Trading continues 24/7',
+        supportingEvidence: ['Primary exchange closed'],
+        contradictingEvidence: [],
+        confidence: 0.85,
+        status: 'SUPPORTED',
+      },
+      {
+        id: 'LIQUIDITY_IMBALANCE',
+        title: 'Liquidity Imbalance',
+        description: 'Order book imbalance',
+        supportingEvidence: ['Spread elevated'],
+        contradictingEvidence: [],
+        confidence: 0.45,
+        status: 'PARTIALLY_SUPPORTED',
+      },
+      {
+        id: 'MARKET_EVENT',
+        title: 'Market Event',
+        description: 'Catalyst driven',
+        supportingEvidence: [],
+        contradictingEvidence: ['No breaking headlines'],
+        confidence: 0.1,
+        status: 'CONTRADICTED',
+      },
+    ],
+  };
+
+  const parsed = parseAiOutput(validV2);
+  assert.ok(parsed);
+  assert.equal(parsed.assessment.whyThisMatters, 'NVDA surfaced due to 24/7 off-hours price discovery while US cash equity markets are closed.');
+  assert.equal(parsed.hypotheses.length, 3);
+  assert.equal(parsed.hypotheses[0].status, 'SUPPORTED');
+  assert.equal(parsed.hypotheses[1].status, 'PARTIALLY_SUPPORTED');
+  assert.equal(parsed.hypotheses[2].status, 'CONTRADICTED');
+});
+
+test('AI provider request handles network timeouts gracefully without throwing', async () => {
+  const evidence = createMockEvidence();
+  const signals = deriveDeterministicSignals(evidence);
+  const hypotheses = evaluateHypotheses(evidence);
+
+  const slowFetcher = async () => {
+    // Wait longer than timeout
+    await new Promise(r => setTimeout(r, 100));
+    throw new Error('TimeoutError');
+  };
+
+  const result = await requestAiInvestigation(
+    { evidence, signals, hypotheses },
+    'mock-key',
+    'https://mock.ai',
+    'test-model',
+    slowFetcher as unknown as typeof fetch,
+    50, // 50ms test timeout
+  );
+
+  assert.equal(result.status, 'FAILED');
+  assert.equal(result.output, null);
+  assert.ok(result.issue?.includes('Falling back to deterministic investigation'));
+});
+
+test('AI provider handles malformed JSON response safely', async () => {
+  const evidence = createMockEvidence();
+  const signals = deriveDeterministicSignals(evidence);
+  const hypotheses = evaluateHypotheses(evidence);
+
+  const mockFetcher = async () => new Response(JSON.stringify({ choices: [{ message: { content: 'not valid json' } }] }), { status: 200 });
+  const result = await requestAiInvestigation(
+    { evidence, signals, hypotheses },
+    'mock-key',
+    'https://mock.ai',
+    'test-model',
+    mockFetcher as unknown as typeof fetch,
+  );
+
+  assert.equal(result.status, 'FAILED');
+  assert.equal(result.output, null);
+  assert.ok(result.issue?.includes('did not contain valid JSON'));
+});
+
 

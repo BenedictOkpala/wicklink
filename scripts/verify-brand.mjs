@@ -14,18 +14,19 @@ assert.ok(html.includes('rel="icon"'), 'Favicon link must be present in HTML hea
 assert.ok(html.includes('/favicon.svg'), 'Favicon svg must be referenced');
 
 // 3. Sidebar Brand
-assert.ok(html.includes('class="brand-name">WickLink</span>'), 'Sidebar brand name must be WickLink');
-assert.ok(html.includes('class="brand-badge">find the weak link in the market.</span>'), 'Sidebar brand badge must be WickLink tagline');
+assert.ok(html.includes('class="brand-name">WICKLINK</span>'), 'Sidebar brand name must be WickLink');
+assert.ok(html.includes('find the weak link in the market.'), 'Brand narrative tagline must be present');
 
 // 4. Header Eyebrow
 assert.ok(html.includes('class="header-eyebrow">WickLink Intelligence</span>'), 'Header eyebrow must be WickLink Intelligence');
 
 // 5. Overview Quote & Backdrop
-assert.ok(html.includes('WickLink</strong>'), 'Overview quote card must feature WickLink');
+assert.ok(html.includes('WICKLINK / INTELLIGENCE DESK'), 'Overview intelligence desk must feature WickLink');
 assert.ok(html.includes('WickLink Investigation Engine V1'), 'Investigation note must feature WickLink');
 
 // 6. Zero public-facing NightShift strings in rendered HTML
 assert.ok(!html.includes('NightShift'), 'No public NightShift text in rendered HTML');
 
 console.log('PASS: All public-facing WickLink branding elements verified in live DOM!');
+
 

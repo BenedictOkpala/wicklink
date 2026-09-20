@@ -15,12 +15,12 @@ test('saved dark and light override system preference before paint', () => {
   assert.equal(initialize('dark', true), 'dark');
   assert.equal(initialize('light', false), 'light');
 });
-test('first visit and invalid storage follow system preference', () => {
+test('first visit and invalid storage default to light', () => {
   assert.equal(initialize(null, true), 'light');
-  assert.equal(initialize(null, false), 'dark');
+  assert.equal(initialize(null, false), 'light');
   assert.equal(initialize('invalid', true), 'light');
 });
-test('blocked storage still allows system preference initialization', () => {
+test('blocked storage still defaults to light', () => {
   assert.equal(initialize(null, true, true), 'light');
 });
 test('switching persists both themes and survives reload without touching application state', () => {

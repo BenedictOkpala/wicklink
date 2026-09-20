@@ -30,15 +30,19 @@ export default function AssetSearch({
       )
     : assets.slice(0, 6);
 
-  // Close on outside click
+  // Close on outside click or tap
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   // Global keyboard shortcut ⌘K / Ctrl+K
@@ -167,6 +171,10 @@ export default function AssetSearch({
                     aria-selected={isSelected}
                     className={`search-result-item ${isSelected ? 'active' : ''}`}
                     onClick={() => selectAsset(asset.symbol)}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      selectAsset(asset.symbol);
+                    }}
                     onMouseEnter={() => setActiveIndex(index)}
                   >
                     <div className={`asset-monogram asset-monogram-${asset.symbol.toLowerCase()}`}>

@@ -20,6 +20,7 @@ registerHooks({
     return next(specifier, context);
   },
   load(url, context, next) {
+    if (url.endsWith('.module.css')) return { format: 'module', shortCircuit: true, source: 'export default new Proxy({}, {get: (_, key) => key});' };
     if (/\.tsx?$/.test(url) && !url.includes('node_modules')) {
       return { format: 'module', shortCircuit: true, source: ts.transpileModule('import React from '+JSON.stringify('react')+';'+fs.readFileSync(fileURLToPath(url), 'utf8'), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText };
     }
@@ -68,11 +69,13 @@ const navigated = [];
 const nav = Navigation({ view: 'markets', onNavigate: view => navigated.push(view) });
 const navButtons = elements(nav).filter(node => node.type === 'button' && node.props.className?.includes('nav-item'));
 navButtons.forEach(node => node.props.onClick());
-assert.deepEqual(navigated, ['overview', 'markets', 'investigations', 'sources', 'system']);
+assert.deepEqual(navigated, ['overview', 'markets', 'investigations', 'sources']);
 
 // Verify tooltips, accessible names, and removed SOON label
-assert.deepEqual(navButtons.map(b => b.props['aria-label']), ['Overview', 'Markets', 'Investigations', 'Data Sources', 'System Status']);
-assert.deepEqual(navButtons.map(b => b.props['data-tooltip']), ['Overview', 'Markets', 'Investigations', 'Data Sources', 'System Status']);
+assert.deepEqual(navButtons.map(b => b.props['aria-label']), ['Overview', 'Markets', 'Investigations', 'Methodology']);
+assert.deepEqual(navButtons.map(b => b.props['data-tooltip']), ['Overview', 'Markets', 'Investigations', 'Methodology']);
+elements(nav).find(node => node.props?.className === 'drawer-system-link').props.onClick();
+assert.equal(navigated.at(-1), 'system', 'System status remains reachable from the drawer');
 const navHtml = render(Navigation, { view: 'investigations', onNavigate() {} });
 assert.ok(!navHtml.includes('SOON'), 'Investigations must not display SOON indicator');
 assert.ok(navHtml.includes('active'), 'Active destination must have active class');

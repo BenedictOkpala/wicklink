@@ -5,17 +5,24 @@ import { formatPrice } from '@/lib/market/presentation';
 import { displayPercent } from './ui-format';
 import { useValueFlash } from './useValueFlash';
 import InterfaceIcon from './InterfaceIcon';
+import MiniSparkline from './MiniSparkline';
 
 export default function AssetRow({
   asset,
   selected,
   onSelect,
   onInvestigate,
+  sparkline,
+  sparklineLoading,
+  viewMode = 'screener',
 }: {
   asset: MarketAsset;
   selected: boolean;
   onSelect: () => void;
   onInvestigate?: (symbol: string) => void;
+  sparkline?: number[] | null;
+  sparklineLoading?: boolean;
+  viewMode?: 'screener' | 'surveillance';
 }) {
   const isStale = asset.comparisonStatus === 'STALE' || asset.isIndicativeOnly;
   const isAvailable = asset.comparisonStatus === 'AVAILABLE';
@@ -59,14 +66,19 @@ export default function AssetRow({
       </td>
 
       {/* TOKENIZED PRICE */}
-      <td>
+      <td className="tokenized-cell">
         <span className="mobile-label">TOKENIZED PRICE</span>
-        <strong className={`price-value ${tokenizedFlash ? `val-flash-${tokenizedFlash}` : ''}`}>${formatPrice(asset.tokenizedPrice)}</strong>
-        <span className="secondary">USDT</span>
+        <div className="price-sparkline-row">
+          <div className="price-num-stack">
+            <strong className={`price-value ${tokenizedFlash ? `val-flash-${tokenizedFlash}` : ''}`}>${formatPrice(asset.tokenizedPrice)}</strong>
+            <span className="secondary">USDT</span>
+          </div>
+          <MiniSparkline symbol={asset.symbol} points={sparkline} loading={sparklineLoading} />
+        </div>
       </td>
 
       {/* REFERENCE PRICE */}
-      <td>
+      <td className="reference-cell">
         <span className="mobile-label">REFERENCE PRICE</span>
         <strong className={`price-value ${referenceFlash ? `val-flash-${referenceFlash}` : ''}`}>
           {asset.referencePrice === null ? '—' : `$${formatPrice(asset.referencePrice)}`}
@@ -78,10 +90,15 @@ export default function AssetRow({
             ? 'Last Close · Ref Closed (USD)'
             : asset.referenceSource ? `${asset.referenceSource} (USD)` : 'Unavailable'}
         </span>
+        {viewMode === 'surveillance' && asset.referencePrice !== null && asset.tokenizedPrice !== null && (
+          <span className="surveillance-spread-meta">
+            Spread ${(asset.tokenizedPrice - asset.referencePrice).toFixed(2)}
+          </span>
+        )}
       </td>
 
       {/* DIFFERENCE */}
-      <td>
+      <td className="difference-cell">
         <span className="mobile-label">DIFFERENCE</span>
         <strong
           className={`dislocation-value ${
@@ -107,6 +124,11 @@ export default function AssetRow({
             ? asset.dislocationDirection.charAt(0).toUpperCase() + asset.dislocationDirection.slice(1)
             : 'Withheld'}
         </span>
+        {viewMode === 'surveillance' && displayDiff !== null && isAvailable && (
+          <span className="surveillance-bps-tag">
+            {displayDiff > 0 ? '+' : ''}{Math.round(displayDiff * 100)} bps
+          </span>
+        )}
       </td>
 
       {/* STATUS */}
@@ -116,6 +138,9 @@ export default function AssetRow({
           <span className={`status-dot ${isStale ? 'dot-amber' : ''}`} />
           <span>{isStale ? 'Ref Closed' : asset.dataStatus === 'LIVE' ? 'Live' : asset.dataStatus}</span>
         </span>
+        {viewMode === 'surveillance' && (
+          <span className="surveillance-pipeline-sub">{asset.marketSession}</span>
+        )}
       </td>
 
       {/* ACTIONS */}

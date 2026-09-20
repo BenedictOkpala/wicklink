@@ -17,7 +17,8 @@ for (const id of sections) {
 }
 
 // Verify key content markers across all 5 stacked sections
-assert.ok(html.includes('Find what the tokenized market is pricing differently'), 'Overview hero must be present');
+assert.ok(html.includes('overview-watch-title'), 'Ranked Overview heading must be present');
+assert.ok(!html.includes('Why dislocations happen'), 'Old Overview educational block must be removed');
 assert.ok(html.includes('REALITY MARKET OVERVIEW'), 'Markets overview table must be present');
 assert.ok(html.includes('MARKET EVIDENCE'), 'Market evidence / detail card must be present');
 assert.ok(html.includes('ACTIVITY'), 'Activity panel must be present');
@@ -30,7 +31,7 @@ assert.ok(html.includes('WickLink Intelligence'), 'Eyebrow must be present');
 assert.ok(html.includes('workspace-header'), 'Sticky header must be present');
 
 // Verify sidebar navigation items with tooltips and aria-labels
-for (const label of ['Overview', 'Markets', 'Investigations', 'Data Sources', 'System Status']) {
+for (const label of ['Overview', 'Markets', 'Investigations', 'Methodology', 'System Status']) {
   assert.ok(html.includes(`aria-label="${label}"`), `Nav button for ${label} must be present`);
   assert.ok(html.includes(`data-tooltip="${label}"`), `Tooltip for ${label} must be present`);
 }
@@ -53,4 +54,5 @@ assert.equal(invData.symbol, 'NVDA', 'Investigation report must be for NVDA');
 assert.equal(invData.hypotheses.length, 6, 'Investigation must contain 6 hypotheses');
 
 console.log('ALL CONTINUOUS SCROLL & API VERIFICATIONS PASSED!');
+
 
