@@ -33,7 +33,7 @@
 .frame :global(.drawer-system-link:hover) { color: var(--drawer-text) !important; }
 .frame :global(.refresh-button) { margin: 4px 0 0; min-height: 44px; background: var(--drawer-raised) !important; color: var(--drawer-text) !important; border: 1px solid var(--drawer-border) !important; border-radius: 6px; }
 .frame :global(.refresh-button:hover) { background: var(--drawer-hover) !important; }
-.frame :global(#section-overview) { margin-bottom: 72px; }
+.frame :global(#section-overview) { margin-bottom: 20px; }
 .frame :global(#section-markets) { padding-top: 20px; border-top: 1px solid var(--border); }
 @media (max-width: 768px) {
   .frame :global(.workspace-header) { position: sticky; padding: 12px 16px 16px; gap: 14px; min-height: 0; }
@@ -51,28 +51,3 @@
   .frame :global(#section-overview) { margin-bottom: 64px; }
   .frame :global(#section-markets) { padding-top: 28px; }
 }
-
-.frame :global(.sidebar-nav) { flex: 0 0 auto; padding-bottom: 24px; }
-.frame :global(.brand-wrap) { flex-shrink: 0; }
-.frame :global(#section-overview) { margin-bottom: 72px; }
-.frame :global(#section-markets) { padding-top: 20px; border-top: 1px solid var(--border); }
-@media (max-width: 768px) {
-  .frame :global(.workspace-header) { position: sticky; padding: 12px 16px 16px; gap: 14px; min-height: 0; }
-  .frame :global(.header-brand-group) { min-height: 44px; }
-  .frame :global(.header-title-block) { padding: 0 50px; }
-  .frame :global(.header-eyebrow) { font-size: 13px; text-transform: none; letter-spacing: .2px; }
-  .frame :global(#workspace-title) { font-size: 12px !important; font-weight: 400; color: var(--muted); }
-  .frame :global(.header-controls) { width: 100%; }
-  .frame :global(.theme-toggle) { position: absolute; right: 16px; top: 12px; }
-  .frame :global(.search-wrap) { width: 100%; max-width: 100%; }
-  .frame :global(.header-search-box) { min-height: 44px; }
-  .frame :global(.header-search-box input) { width: 100%; min-width: 0; font-size: 14px; }
-  .frame :global(.search-shortcut-badge) { display: none; }
-  .frame :global(.search-dropdown) { width: 100%; max-width: 100%; }
-  .frame :global(#section-overview) { margin-bottom: 64px; }
-  .frame :global(#section-markets) { padding-top: 28px; }
-}
-
-
-.frame :global(.sidebar-nav) { flex: 0 0 auto; padding-bottom: 24px; }
-.frame :global(.brand-wrap) { flex-shrink: 0; }
